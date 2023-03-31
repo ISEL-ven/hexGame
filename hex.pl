@@ -18,15 +18,25 @@ createBoard(B) :-
          ['.','.','.'],
          ['.','.','.']].
 
+printBoardHeader :-
+    write('  A B C'), nl.
+    
+printBoard([], Space, Counter) :-
+    write('2'),
+    printTab(Space, NewSpace, Counter),
+    printBoardHeader(),
+    nl.
 
-printBoard([]) :- nl.
-printBoard([H|T]) :-
+printBoard([H|T], Space, Counter) :-
+    write('1'),
+    printTab(Space, NewSpace, Counter),
     printLine(H),
-    printBoard(T).
+    NextCounter is Counter + 1,
+    printBoard(T, NewSpace, NextCounter).
 
 getElem_nth1(Board, RowIndex, ColIndex, Elem) :-
     nth1(RowIndex, Board, Row),
-    nth1(ColIndex, Row, Elem)
+    nth1(ColIndex, Row, Elem).
 
 % TODO - implement this
 % play(Board, Player, NewBoard) :-
@@ -43,9 +53,12 @@ printLine([H|T]) :-
 % TODO: implement moves() usando o find-all
 
 % DEBUG AND TESTS ---------------------------------------------
-% ?- createBoard(B), printBoard(B).
+% ?- createBoard(B), printBoard(B, ' ').
 
-printTab(Space) :-
+printTab(Space, NewSpace, Counter) :-
+    write(Space),
+    write(Counter),
+    write(' '),
     atom_concat(' ', Space, NewSpace).
 
 
