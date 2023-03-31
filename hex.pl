@@ -44,7 +44,7 @@ getElem_nth1(Board, RowIndex, ColIndex, Elem) :-
 printLine([]) :-
     nl.
 printLine([H|T]) :-
-    write(H),write(' '),
+    write(H), write(' '),
     printLine(T).
 
 
@@ -60,9 +60,4 @@ printTab(Space, NewSpace, Counter) :-
     write(Counter),
     write(' '),
     atom_concat(' ', Space, NewSpace).
-
-
-% function tab makes a pyamid with * and spaces
-pyamid(N):-
-    pyamid(N, 1).
 
