@@ -1,19 +1,69 @@
 %
 % MAIN 
 %
-main(Size) :- 
+main() :- 
     write('##############\n## HEX GAME ##\n##############\n\n'),
-    create_board(Size, Board),
-    print_board(Size, Board).
+    print_options(),
+    read_options().
+  
+%
+% OPTIONS
+%
+print_options() :- 
+    write('1 - Player vs Player\n'),
+    write('2 - Player vs CPU\n'),
+    write('3 - CPU vs CPU\n').
+    
+read_options() :- 
+    write('Choose option: '),
+    read(Option),
+    option(Option).
 
+option(1) :- 
+    read_board_size(Size),
+    create_board(Size, Board),
+    game_loop(Board, white).
+option(2) :- 
+    write('Option 2 TODO').
+option(3) :- 
+    write('Option 3 TODO').
+option(_) :- 
+    write('*** Choose a valid option! ***\n'),
+    read_options().
+
+read_board_size(Size) :-
+    write('Set board size: '),
+    read(Size).
+
+%
+% GAME
+%
+game_loop(Board, Player) :-
+    print_board(Board),
+    %check if game is over
+    %if not over
+    write('Player '), write(Player), write(' to move: '),
+    get_move(Player, Move),
+    apply_move(Move, Player, Board, NewBoard),
+    next_player(Player, NextPlayer),
+    game_loop(NewBoard, NextPlayer).
+
+%% TODO check if move is type letterNumber - ex. a1 or c3 - if not read again
+get_move(Player, Move) :-
+    read(Move),
+    validate_move(Player, Move).
+
+validate_move(Player, Move) :-
+    nl.
+
+% TODO apply move to Board
+apply_move(Move, Player, Board, NewBoard) :-
+    write('Player '), write(Player), write(' input was: '), write(Move), nl,
+    NewBoard = Board.
+    
 %
 % BOARD
 %
-
-% create_fixed_board(B) :-
-%     B = [['.','.','.'],
-%          ['.','.','.'],
-%          ['.','.','.']].
 
 % Creates dynamic grid - solution from chatgpt
 create_board(Size, Board) :-
@@ -27,7 +77,9 @@ create_rows(Size, [Row|Rows]) :-
     create_rows(Size, Rows).
 
 % prints board with coords labels
-print_board(Size, Board) :-
+print_board(Board) :-
+    nl,
+    length(Board, Size),
     print_letter_coords(Size),
     print_grid(Board, ' ', 1),
     print_letter_coords(Size),
@@ -102,7 +154,7 @@ next_player(white, black).
 % TODO: implement moves() usando o find-all
 
 % DEBUG AND TESTS ---------------------------------------------
-% ?- main(3).
+% ?- main().
 % ?- createBoard(B), printBoard(B, ' ').
 
 
