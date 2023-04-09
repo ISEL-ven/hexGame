@@ -1,14 +1,14 @@
-%
-% MAIN 
-%
+% ***************************************
+%                   MAIN 
+% ***************************************
 main() :- 
     write('##############\n## HEX GAME ##\n##############\n\n'),
     print_options(),
     read_options().
   
-%
-% OPTIONS
-%
+% ***************************************
+%                   OPTIONS
+%****************************************
 print_options() :- 
     write('1 - Player vs Player\n'),
     write('2 - Player vs CPU\n'),
@@ -19,10 +19,14 @@ read_options() :-
     read(Option),
     option(Option).
 
+% ***************************************
+%      Human Vs. Human
+%****************************************
 option(1) :- 
-    read_board_size(Size),
-    create_board(Size, Board),
-    game_loop(Board, white).
+    read_board_size(Size),                  % Get the size of the board from input
+    create_board(Size, Board),              % Create the board based on it's size
+    game_loop(Board, white).                % Start the game 
+
 option(2) :- 
     write('Option 2 TODO').
 option(3) :- 
@@ -31,36 +35,52 @@ option(_) :-
     write('*** Choose a valid option! ***\n'),
     read_options().
 
-read_board_size(Size) :-
+read_board_size(Size) :-                            
     write('Set board size: '),
     read(Size).
 
-%
-% GAME
-%
+% ***************************************
+%                 GAME
+% ***************************************
+
+
 game_loop(Board, Player) :-
     print_board(Board),
-    %check if game is over
+    %check if game is over TODO
     %if not over
-    write('Player '), write(Player), write(' to move: '),
     get_move(Player, Move),
     apply_move(Move, Player, Board, NewBoard),
     next_player(Player, NextPlayer),
     game_loop(NewBoard, NextPlayer).
 
-%% TODO check if move is type letterNumber - ex. a1 or c3 - if not read again
-get_move(Player, Move) :-
-    read(Move),
-    validate_move(Player, Move).
 
-validate_move(Player, Move) :-
+get_move(Player, Move) :-
+    write('Player '), write(Player), write(' to move (example "a1"): '),
+    repeat,  
+        read(Move),
+        (
+            validate_move(Player, Move), !
+            ;   % OR
+            fail
+        ).
+    
+% TODO check if move is type letterNumber - ex. a1 or c3 - if not read again
+validate_move(Player, Move) :-    
     nl.
 
 % TODO apply move to Board
 apply_move(Move, Player, Board, NewBoard) :-
-    write('Player '), write(Player), write(' input was: '), write(Move), nl,
-    NewBoard = Board.
+    extract_coords(Move, X, Y),
+    write('Player '), write(Player), write(' input was: '), nl.
+    %NewBoard = Board.
     
+% ***************************************
+%  Extract the coords from the movement
+% ***************************************
+extract_coords(Move, X, Y) :- 
+    sub_string(Move, 0, 1, _, X),       % Get first position (X) from input
+    sub_string(Move, 1, 1, _, Y).       % Get second position (Y) from input
+
 %
 % BOARD
 %
