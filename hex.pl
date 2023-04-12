@@ -1,6 +1,7 @@
 % ***************************************
 %                   MAIN 
 % ***************************************
+
 main() :- 
     write('##############\n## HEX GAME ##\n##############\n\n'),
     print_options(),
@@ -8,7 +9,8 @@ main() :-
   
 % ***************************************
 %                   OPTIONS
-%****************************************
+% ****************************************
+
 print_options() :- 
     write('1 - Player vs Player\n'),
     write('2 - Player vs CPU\n'),
@@ -19,16 +21,17 @@ read_options() :-
     read(Option),
     option(Option).
 
-% ***************************************
-%      Human Vs. Human
-%****************************************
+% Option 1 - Player vs Player
 option(1) :- 
     read_board_size(Size),                  % Get the size of the board from input
     create_board(Size, Board),              % Create the board based on it's size
-    game_loop(Board, white).                % Start the game 
+    write('\n### GAME STARTED ###\nTo play a piece write (e.g "a1") \n'),
+    game_loop(Board, 'WHITE').              % Start the game 
 
-option(2) :- 
+% Option 2 - Player vs CPU
+option(2) :-
     write('Option 2 TODO').
+% Option 3 - CPU vs CPU
 option(3) :- 
     write('Option 3 TODO').
 option(_) :- 
@@ -36,54 +39,66 @@ option(_) :-
     read_options().
 
 read_board_size(Size) :-                            
-    write('Set board size: '),
+    write('Set board size (max: 9): '),
     read(Size).
 
 % ***************************************
 %                 GAME
 % ***************************************
 
-
 game_loop(Board, Player) :-
     print_board(Board),
     %check if game is over TODO
     %if not over
-    get_move(Player, Move),
+    write(Player), write(' to move'),
+    get_move(Input, Board, Move),
     apply_move(Move, Player, Board, NewBoard),
     next_player(Player, NextPlayer),
     game_loop(NewBoard, NextPlayer).
 
 
-get_move(Player, Move) :-
-    write('Player '), write(Player), write(' to move (example "a1"): '),
+get_move(Input,Board, Move) :-
     repeat,  
-        read(Move),
+        read(Input),
         (
-            validate_move(Player, Move), !
+            validate_input(Input),
+            extract_coords(Input, Move),
+            validate_move(Move, Board), !
             ;   % OR
             fail
         ).
-    
-% TODO check if move is type letterNumber - ex. a1 or c3 - if not read again
-validate_move(Player, Move) :-    
+
+% TODO check if input is type letterNumber - ex a1 or c3 - if not read again
+validate_input(Input) :- 
+    nl.
+
+% TODO check if move is valid (hex position must be empty to play, if not user must give new input
+validate_move(Move, Board) :-
     nl.
 
 % TODO apply move to Board
 apply_move(Move, Player, Board, NewBoard) :-
-    extract_coords(Move, X, Y),
-    write('Player '), write(Player), write(' input was: '), nl.
-    %NewBoard = Board.
+    piece(Player, Piece),
+    modify_board(Move, Board, Piece, NewBoard).
+
     
 % ***************************************
-%  Extract the coords from the movement
+%  Extract the coords from the input (e.g d3 -> X = 4, Y = 3)
 % ***************************************
-extract_coords(Move, X, Y) :- 
-    sub_string(Move, 0, 1, _, X),       % Get first position (X) from input
-    sub_string(Move, 1, 1, _, Y).       % Get second position (Y) from input
+extract_coords(Input, Move) :- 
+    sub_string(Input, 0, 1, _, XLetter),    % Get first position (X) from input
+    letter_to_number(XLetter, X),           % Convert X(letter) to number    
+    sub_string(Input, 1, 1, _, YAtom),      % Get second position (Y) from input
+    atom_number(YAtom, Y),                  % Convert Y(Atom) to number     
+    Move = [X, Y].                                       
 
-%
-% BOARD
-%
+letter_to_number(Letter, Number) :-
+    atom_codes(Letter, [Code]),
+    Number is Code - 96.
+
+% ***************************************
+%               BOARD
+% ***************************************
 
 % Creates dynamic grid - solution from chatgpt
 create_board(Size, Board) :-
@@ -147,34 +162,32 @@ print_line([H|T]) :-
     write(' '),
     print_line(T).
 
-% get elem
-getElem_nth1(Board, RowIndex, ColIndex, Elem) :-
-    nth1(RowIndex, Board, Row),
-    nth1(ColIndex, Row, Elem).
+% Create a NewBoard with the position [X,Y] modified with Char
+modify_board([X, Y], Board, Char, NewBoard) :-
+    nth1(Y, Board, Row),
+    replace(Row, X, Char, NewRow),
+    replace(Board, Y, NewRow, NewBoard).
 
-%
-% PLAYERS
-%   
+replace(List, Index, NewElement, Result) :-
+    nth1(Index, List, _, Temp),
+    nth1(Index, Result, NewElement, Temp).
 
-% players definitions
-player(black) :- '\u2b22'.
-player(white) :- '\u2b21'.
-%black(X) :- X = '\u2b22'.
-%white(X) :- X = '\u2b21'.
+% ***************************************
+%               PLAYERS
+% ***************************************   
 
-% next player
-next_player(black, white).
-next_player(white, black).
+% get players pieces chars
+piece('BLACK', '\u2b21').
+piece('WHITE', '\u2b22').
+
+% get next player
+next_player('BLACK', 'WHITE').
+next_player('WHITE', 'BLACK').
 
 % TODO - implement this
-% play(Board, Player, NewBoard) :-
-
 % TODO: implement checkVictory()
-
 % TODO: implement moves() usando o find-all
 
 % DEBUG AND TESTS ---------------------------------------------
 % ?- main().
 % ?- createBoard(B), printBoard(B, ' ').
-
-
