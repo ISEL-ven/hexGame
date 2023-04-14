@@ -64,10 +64,15 @@ apply_move(Move, Player, Board, NewBoard) :-
     piece(Player, Piece),
     modify_board(Move, Board, Piece, NewBoard).
 
-% TODO check if input is type letterNumber - ex a1 or c3 - if not read again
-% TODO Also validate if input doesnt overreach board limits based on Board.Length
-validate_input(Input) :- 
-    nl.
+validate_input(Input) :-
+    atom_length(Input, 2),                  % Number of characters in input must be 2
+    sub_string(Input, 0, 1, _, XLetter),    % Get first position (X) from input
+    atom_codes(XLetter, [Code]),            % Convert X(letter) to number
+    Code >= 97, Code =< 122,                % Check if the first character is a lowercase letter
+    sub_string(Input, 1, 1, _, YAtom),      % Get second position (Y) from input%
+    atom_number(YAtom, Y),                  % Convert Y(Atom) to number
+    Y >= 1.                           		% Check if the second character is a number
+
      
 %  Extracts the coords from the input (e.g: d3 -> X = 4, Y = 3)
 extract_coords(Input, Move) :- 
