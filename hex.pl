@@ -10,3 +10,4 @@ main() :-
     write('\u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \n'),
     print_options(),
     read_options().
+:- main.  % run main automatically
