@@ -17,7 +17,7 @@
 % Mode 1 - Player vs Player
 start_game(1, Size) :- 
     print_dialog('GAME STARTED'),
-    write('To play a piece write (e.g "a1")\n'),
+    write('To play a piece write (e.g "a/1")\n'),
     create_board(Size, Board),                  % Create the board based on it's size
     game_loop(Board, 'WHITE').                  % Start the game 
 
@@ -47,15 +47,15 @@ game_loop(Board, Player) :-
 % MOVES
 %
 
-% Reads input, check string format and if move is valid on board
+% Reads Input and returns a Move if is valid. e.g. Input = b/3 -> Move = [2,3]
 get_move(Board, Move) :-
     repeat,  
         read(Input),
         (
-            validate_input(Input),              % Check if input is formatted
-            extract_coords(Input, Move),        % Convert input to Move [X, Y]
-            validate_move(Move, Board), !       % Validate if move is valid
+            convert_input(Input, Move),         % Convert input into a Move
+            validate_move(Move, Board), !       % Validate if Move is valid to play
             ;   % OR
+            write('Invalid move.\n'),
             fail                                % Else: Re-read new input
         ).
 
@@ -64,31 +64,17 @@ apply_move(Move, Player, Board, NewBoard) :-
     piece(Player, Piece),
     modify_board(Move, Board, Piece, NewBoard).
 
-validate_input(Input) :-
-    atom_length(Input, 2),                  % Number of characters in input must be 2
-    sub_string(Input, 0, 1, _, XLetter),    % Get first position (X) from input
-    atom_codes(XLetter, [Code]),            % Convert X(letter) to number
-    Code >= 97, Code =< 122,                % Check if the first character is a lowercase letter
-    sub_string(Input, 1, 1, _, YAtom),      % Get second position (Y) from input%
-    atom_number(YAtom, Y),                  % Convert Y(Atom) to number
-    Y >= 1.                           		% Check if the second character is a number
+convert_input(XLetter/Y, Move) :-
+    nonvar(XLetter),                            % Check if XLetter is not capitalized/a variable
+    atom_codes(XLetter, [XCode]),               % Get code of X Letter
+    X is XCode - 96,                            % Get X as Number. e.g. a = 1
+    Move = [X,Y].                         
 
-     
-%  Extracts the coords from the input (e.g: d3 -> X = 4, Y = 3)
-extract_coords(Input, Move) :- 
-    sub_string(Input, 0, 1, _, XLetter),        % Get first position (X) from input
-    letter_to_number(XLetter, X),               % Convert X(letter) to number    
-    sub_string(Input, 1, 1, _, YAtom),          % Get second position (Y) from input
-    atom_number(YAtom, Y),                      % Convert Y(Atom) to number     
-    Move = [X, Y].                                       
-
-letter_to_number(Letter, Number) :-
-    atom_codes(Letter, [Code]),
-    Number is Code - 96.
-
-% TODO check if move is valid (hex position must be empty to play)
-validate_move(Move, Board) :-
-    nl.
+% TODO position is empty part not done
+validate_move([X,Y], Board) :-
+    length(Board, Board_Length),                % Get Board length
+    X >= 1, X =< Board_Length,                  % Check X is on Board limits
+    Y >= 1, Y =< Board_Length.                  % Check Y is on Board limits
 
 % ***************************************
 %               PLAYERS
