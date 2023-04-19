@@ -25,7 +25,7 @@ start_game(1, Size) :-
 start_game(2, Size) :- 
     nl.
 
-% TODO: Mode 3 - Player vs CPU
+% TODO: Mode 3 - CPU vs Player
 start_game(2, Size) :- 
     nl.
 
@@ -70,11 +70,18 @@ convert_input(XLetter/Y, Move) :-
     X is XCode - 96,                            % Get X as Number. e.g. a = 1
     Move = [X,Y].                         
 
-% TODO position is empty part not done
+% check if choosen move is valid
 validate_move([X,Y], Board) :-
     length(Board, Board_Length),                % Get Board length
     X >= 1, X =< Board_Length,                  % Check X is on Board limits
-    Y >= 1, Y =< Board_Length.                  % Check Y is on Board limits
+    Y >= 1, Y =< Board_Length,                  % Check Y is on Board limits
+    empty_pos([X,Y], Board).                    % Check if position is empty
+    
+% check if piece in position [X,Y] of the Board is empty (empty = '.')
+empty_pos([X, Y], Board) :-
+    nth1(Y, Board, Row),
+    nth1(X, Row, Piece),
+    (Piece == '.').
 
 % ***************************************
 %               PLAYERS
