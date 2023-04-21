@@ -2,6 +2,7 @@
 
 :- use_module(options).
 :- use_module(board).
+:- use_module(minimax).
 
 % ***************************************
 %               GAME
@@ -23,10 +24,18 @@ start_game(1, Size) :-
 
 % TODO: Mode 2 - Player vs CPU
 start_game(2, Size) :- 
+    print_dialog('GAME STARTED'),
+    write('To play a piece write (e.g "a/1")\n'),
+    create_board(Size, Board),                  % Create the board based on it's size
+    % game_loop_cpu(Board, 'WHITE').           % Start the game
     nl.
 
 % TODO: Mode 3 - CPU vs Player
 start_game(2, Size) :- 
+    print_dialog('GAME STARTED'),
+    write('To play a piece write (e.g "a/1")\n'),
+    create_board(Size, Board),                  % Create the board based on it's size
+    % game_loop_cpu_2(Board, 'WHITE').           % Start the game
     nl.
 
 %
@@ -41,7 +50,29 @@ game_loop(Board, Player) :-
     get_move(Board, Move),                      % Read the move from input and validate it
     apply_move(Move, Player, Board, NewBoard),  % Apply the move to the logic board
     next_player(Player, NextPlayer),            % Switch to the next player
-    game_loop(NewBoard, NextPlayer).            
+    game_loop(NewBoard, NextPlayer).    
+
+game_loop_cpu(Board, Player) :-
+    print_board(Board),
+    %check if game is over TODO
+    %if not over
+    write(Player), write(' to move'),
+     % TODO: é preciso chamar minimax
+    %get_move_cpu(Board, Move, Player),         % Read the move from input and validate it
+    apply_move(Move, Player, Board, NewBoard),  % Apply the move to the logic board
+    next_player(Player, NextPlayer),            % Switch to the next player
+    game_loop_cpu(NewBoard, NextPlayer).      
+
+game_loop_cpu_2(Board, Player) :-
+    print_board(Board),
+    %check if game is over TODO
+    %if not over
+    write(Player), write(' to move'),
+    % TODO: é preciso chamar minimax invertido
+    %get_move_cpu_2(Board, Move, Player),       % Read the move from input and validate it
+    apply_move(Move, Player, Board, NewBoard),  % Apply the move to the logic board
+    next_player(Player, NextPlayer),            % Switch to the next player
+    game_loop_cpu_2(NewBoard, NextPlayer).
 
 %
 % MOVES
@@ -58,6 +89,34 @@ get_move(Board, Move) :-
             write('Invalid move.\n'),
             fail                                % Else: Re-read new input
         ).
+
+get_move_cpu(Board, Move, Player) :-
+    Player == 'BLACK',
+    %minimax( Board, Move Val), !
+    ;  % OR
+        repeat,  
+            read(Input),
+            (
+                convert_input(Input, Move),         % Convert input into a Move
+                validate_move(Move, Board), !       % Validate if Move is valid to play
+                ;   % OR
+                write('Invalid move.\n'),
+                fail                                % Else: Re-read new input
+            ).
+
+get_move_cpu_2(Board, Move, Player) :-
+    Player == 'WHITE',
+    %minimax( Board, Move, Val), !
+    ;  % OR
+        repeat,  
+            read(Input),
+            (
+                convert_input(Input, Move),         % Convert input into a Move
+                validate_move(Move, Board), !       % Validate if Move is valid to play
+                ;   % OR
+                write('Invalid move.\n'),
+                fail                                % Else: Re-read new input
+            ).    
 
 % Apply move to Board
 apply_move(Move, Player, Board, NewBoard) :-

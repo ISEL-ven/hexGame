@@ -10,7 +10,7 @@ print_options() :-
     print_dialog('GAME MODE'),
     write('1 - Player vs Player\n'),
     write('2 - Player vs CPU\n'),
-    write('3 - CPU vs CPU\n').
+    write('3 - CPU vs Player\n').
     
 read_options() :- 
     write('Choose mode: '),
