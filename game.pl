@@ -58,7 +58,7 @@ game_loop_cpu(Board, Player) :-
     %if not over
     write(Player), write(' to move'),
      % TODO: é preciso chamar minimax
-    %get_move_cpu(Board, Move, Player),         % Read the move from input and validate it
+    get_move_cpu([Board], Move, Player),         % Read the move from input and validate it
     apply_move(Move, Player, Board, NewBoard),  % Apply the move to the logic board
     next_player(Player, NextPlayer),            % Switch to the next player
     game_loop_cpu(NewBoard, NextPlayer).      
@@ -69,7 +69,7 @@ game_loop_cpu_2(Board, Player) :-
     %if not over
     write(Player), write(' to move'),
     % TODO: é preciso chamar minimax invertido
-    %get_move_cpu_2(Board, Move, Player),       % Read the move from input and validate it
+    get_move_cpu_2(Board, Move, Player),       % Read the move from input and validate it
     apply_move(Move, Player, Board, NewBoard),  % Apply the move to the logic board
     next_player(Player, NextPlayer),            % Switch to the next player
     game_loop_cpu_2(NewBoard, NextPlayer).
@@ -92,7 +92,7 @@ get_move(Board, Move) :-
 
 get_move_cpu(Board, Move, Player) :-
     Player == 'BLACK',
-    %minimax( Board, Move Val), !
+    minimax.minimax( [Player|Board], Move, Val), !
     ;  % OR
         repeat,  
             read(Input),
@@ -106,7 +106,7 @@ get_move_cpu(Board, Move, Player) :-
 
 get_move_cpu_2(Board, Move, Player) :-
     Player == 'WHITE',
-    %minimax( Board, Move, Val), !
+    minimax.minimax([Player|Board], Move, Val), !
     ;  % OR
         repeat,  
             read(Input),

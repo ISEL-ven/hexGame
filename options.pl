@@ -29,11 +29,13 @@ option(1) :-
 
 % Option 2 - Player vs CPU
 option(2) :-
-    write('Option 2 TODO').
+    read_board_size(Size),              % Get the size of the board from input
+    start_game(2, Size).
 
 % Option 3 - CPU vs CPU
 option(3) :- 
-    write('Option 3 TODO').
+    read_board_size(Size),              % Get the size of the board from input
+    start_game(3, Size).
 
 option(_) :- 
     print_dialog('Choose a valid option!'),
@@ -43,3 +45,4 @@ print_dialog(Message) :-
     write('\n\u2b22 \u2b21 \u2b22  '),
     write(Message),
     write('  \u2b22 \u2b21 \u2b22\n').
+

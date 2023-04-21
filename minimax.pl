@@ -1,6 +1,7 @@
 % minimax( Pos, BestSucc, Val):
 %   Pos is a position, Val is its minimax value;
 %   best move from Pos leads to position BestSucc
+
 minimax( Pos, BestSucc, Val) :-
    moves( Pos, PosList), !,      % Legal moves in Pos produce PosList
    best( PosList, BestSucc, Val)
@@ -28,3 +29,36 @@ betterof( Pos0, Val0, Pos1, Val1, Pos0, Val0) :- % Pos0 better than Pos1
 
 betterof( Pos0, Val0, Pos1, Val1, Pos1, Val1). % Otherwise Pos1 better than Pos0
 
+
+% implemented by ven - maybe not correct
+moves( Pos, PosList) :-
+   Pos == [], !
+   ; % Or
+   findall( simuated_play( Board, Player, NewBoard), 
+            play( Board, Player, X, Y, NewBoard), 
+            PosList).
+   
+% TODO -----------------------------------------------
+staticval( Pos, Val) :-
+   Pos == [], !, Val = 0
+   ; % Or
+   Pos == [], !, Val = 1
+   ; % Or
+   Pos == [], !, Val = -1.
+   
+% TODO -----------------------------------------------
+min_to_move(Pos) :-
+   nl.
+
+% TODO -----------------------------------------------
+max_to_move(Pos) :-
+   nl.
+
+simuated_play(Board, Player, NewBoard) :-
+   member(X, Board_Length),
+   member(Y, Board_Length),
+   play(Board, Player, X, Y, NewBoard).
+
+% TODO -----------------------------------------------
+play(Board, Player, X, Y, NewBoard) :-
+   nl.
