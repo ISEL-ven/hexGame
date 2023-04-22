@@ -150,7 +150,7 @@ empty_pos([X, Y], Board) :-
 check_victory(Board, Player) :-
     starting_positions(Player, Board, StartPositions),              % Get starting positions for Player
     %write('***** DEBUG check_victory *****'), write(StartPositions), nl,
-    validate_victory_path(Board, Player, StartPositions).           % Check if there is a path from any starting position to a goal position
+    validate_victory_path(Board, Player, StartPositions), !.           % Check if there is a path from any starting position to a goal position
 
 validate_victory_path(_, _, []):-fail.                            % If there are no starting positions, fail
 validate_victory_path(Board, Player, [Start|StartPositions]) :-      % Check if there is a path from the current starting position (Start) to a goal position
@@ -163,9 +163,9 @@ validate_victory_path(Board, Player, [Start|StartPositions]) :-      % Check if 
 
 path_exists(Board, Player, [Start|StartPositions]) :-
     %write('***** DEBUG inside path_exists *****'), write(Start), nl, write(Player), nl,
-    dfs(Board, Player, [Start|StartPositions], []).
+    dfs(Board, Player, [Start|StartPositions], []), !.
 
-dfs(_, _, [], _) :- write('This has failed'), fail.    % If there are no more positions to check, fail
+dfs(_, _, [], _) :- write('This has failed'), nl, fail.    % If there are no more positions to check, fail
 dfs(Board, Player, [Pos| Positions], Visited) :-
     %write('***** Running Debgu for DFS *****'), nl,  
     piece(Player, Piece), 
@@ -173,7 +173,8 @@ dfs(Board, Player, [Pos| Positions], Visited) :-
     write('Before goal    '), write(Pos), nl,
     (goal(Piece, Pos, Board) ->
         %write('***** DEBUG inside dfs *****'), nl,
-        true,!
+        true,
+        write('The has won'), !
         ;
         %write('***** DEBUG inside dfs goal was false *****'), nl,
         findall(Neighbor, (next_move(Board, Player, Pos, Neighbor), \+ member(Neighbor, Visited)), Neighbors),
@@ -185,7 +186,7 @@ dfs(Board, Player, [Pos| Positions], Visited) :-
         %write('***** DEBUG dfs current: *****'), write(Neighbor), write(Neighbors), nl,
         dfs(Board, Player, Positions, Visited)          % Previous branch has been checked and failed, check the next one
         %write('***** DEBUG dfs backtracking: *****'), write(Neighbor), write(Neighbors), nl,
-    ).
+    ), !.
 
 goal(Piece, [X, Y], Board) :-
     %write('Inside goal for BLACK'), write(Piece), nl,
