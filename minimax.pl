@@ -1,3 +1,5 @@
+:- module(minimax, [minimax/3]).
+
 % minimax( Pos, BestSucc, Val):
 %   Pos is a position, Val is its minimax value;
 %   best move from Pos leads to position BestSucc
