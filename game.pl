@@ -29,12 +29,13 @@ start_game(2, Size) :-
     nl.
 
 % TODO: Mode 3 - CPU vs Player
-start_game(2, Size) :- 
+start_game(3, Size) :- 
     print_dialog('GAME STARTED'),
     write('To play a piece write (e.g "a/1")\n'),
     create_board(Size, Board),                  % Create the board based on it's size
     % game_loop_cpu_2(Board, 'WHITE').           % Start the game
     nl.
+
 
 %
 % GAME LOOP
@@ -46,8 +47,9 @@ game_loop(Board, Player) :-
     print_board(NewBoard),                             % print the board in the screen
     (check_victory(NewBoard, Player) ->                % Check if the player has won
         write(Player), write(' has won!'), nl, !;   % If so, print the winner and stop the game
-        write(Player), write(' to move')),          % If not, print the player to move
-    next_player(Player, NextPlayer),                % Switch to the next player
+        next_player(Player, NextPlayer),                % If not, switch to the next player
+        write(NextPlayer), write(' to move')),          % and print the player to move
+    
     game_loop(NewBoard, NextPlayer).
 
 game_loop_cpu(Board, Player) :-
@@ -182,13 +184,15 @@ dfs(Board, Player, [Pos| Positions], Visited) :-
         %write('Neighbors:'), write(Neighbors), write('   Visited   '), write(Visited), write('Neighbor'), write(Neighbor), nl,
         append(Neighbors, Visited, UpdatedVisited),
         %write('***** DEBUG append: *****'), write(Neighbor), write(Neighbors), nl,
-        dfs(Board, Player, Neighbors, UpdatedVisited),      % Check if there is a path from the current position to a goal position in this branch
+        dfs(Board, Player, Neighbors, UpdatedVisited), !     % Check if there is a path from the current position to a goal position in this branch
+        ; % OR
         %write('***** DEBUG dfs current: *****'), write(Neighbor), write(Neighbors), nl,
         dfs(Board, Player, Positions, Visited)          % Previous branch has been checked and failed, check the next one
         %write('***** DEBUG dfs backtracking: *****'), write(Neighbor), write(Neighbors), nl,
-    ), !.
+    ).
 
 goal(Piece, [X, Y], Board) :-
+    Piece == '\u2b21',  % only checks for black
     %write('Inside goal for BLACK'), write(Piece), nl,
     piece('BLACK', Piece),
     nth1(Y, Board, Row),
@@ -198,11 +202,12 @@ goal(Piece, [X, Y], Board) :-
     !.
 
 goal(Piece, [X, Y], Board) :-
+    Piece == '\u2b22',  % only checks for white
     %write('Inside goal for WHITE'), write(Piece), nl,
     write('Coords'), write([X/Y]), nl,
     piece('WHITE', Piece),
-    nth1(Y, Board, Row),
-    nth1(X, Row, Piece),
+    nth1(X, Board, Row),
+    nth1(Y, Row, Piece),
     length(Board, Size),
     Y =:= Size,
     !.
