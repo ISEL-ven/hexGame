@@ -196,8 +196,9 @@ goal(Piece, [X, Y], Board) :-
     %write('Inside goal for BLACK'), write(Piece), nl,
     piece('BLACK', Piece),
     nth1(Y, Board, Row),
-    nth1(X, Row, Piece),
+    nth1(X, Row, BoardPiece),
     length(Board, Size),
+    BoardPiece == Piece,
     X =:= Size,
     !.
 
@@ -207,8 +208,9 @@ goal(Piece, [X, Y], Board) :-
     write('Coords'), write([X/Y]), nl,
     piece('WHITE', Piece),
     nth1(X, Board, Row),
-    nth1(Y, Row, Piece),
+    nth1(Y, Row, BoardPiece),
     length(Board, Size),
+    BoardPiece == Piece,
     Y =:= Size,
     !.
 
