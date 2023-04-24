@@ -1,10 +1,10 @@
 :- module(board, [create_board/2, modify_board/4, print_board/1]).
 
-% ***************************************
-%               BOARD
-% ***************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%               BOARD                   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Creates dynamic board (solution from chatgpt)
+% Creates dynamic board
 create_board(Size, Board) :-
     length(Board, Size),
     create_rows(Size, Board).
@@ -17,9 +17,9 @@ create_rows(Size, [Row|Rows]) :-
 
 % Modifies position [X,Y] of the Board with Char
 modify_board([X, Y], Board, Char, NewBoard) :-
-    nth1(Y, Board, Row),
-    replace(Row, X, Char, NewRow),
-    replace(Board, Y, NewRow, NewBoard).
+    nth1(X, Board, Row),
+    replace(Row, Y, Char, NewRow),
+    replace(Board, X, NewRow, NewBoard).
 
 replace(List, Index, NewElement, Result) :-
     nth1(Index, List, _, Temp),

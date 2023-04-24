@@ -4,9 +4,9 @@
 :- use_module(board).
 :- use_module(minimax).
 
-% ***************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %               GAME
-% ***************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %
 % GAME MODES
@@ -15,7 +15,7 @@
 % Mode 1 - Player vs Player
 start_game(1, Size) :-                          
     print_dialog('GAME STARTED'),
-    write('To play a piece write (e.g "a/1")\n'),
+    write('To play a piece write (e.g "1/a")\n'),
     create_board(Size, Board),                      % Create the board based on it's size
     print_board(Board),                             % print the initial board in the screen
     game_loop(Board, 'WHITE').                      % Start the game 
@@ -36,21 +36,20 @@ start_game(3, Size) :-
     % game_loop_cpu_2(Board, 'WHITE').           % Start the game
     nl.
 
-
-%
-% GAME LOOP
-%
+%****************************************
+%           GAME LOOP
+%****************************************
 
 game_loop(Board, Player) :-
-    get_move(Board, Move),                          % Read the move from input and validate it
-    apply_move(Move, Player, Board, NewBoard),      % Apply the move to the logic board
-    print_board(NewBoard),                             % print the board in the screen
-    (check_victory(NewBoard, Player) ->                % Check if the player has won
-        write(Player), write(' has won!'), nl, !;   % If so, print the winner and stop the game
-        next_player(Player, NextPlayer),                % If not, switch to the next player
-        write(NextPlayer), write(' to move')),          % and print the player to move
-    
-    game_loop(NewBoard, NextPlayer).
+    get_move(Board, Move),                              % Read Move from input and validate it
+    apply_move(Move, Player, Board, NewBoard),          % Apply Move to the logic board
+    print_board(NewBoard),                              % Print Board in the screen
+    (check_victory(NewBoard, Player) ->                 % If Player won -> Game Over
+        write('\u2b22 \u2b21 \u2b22 '), write(Player), write(' WINS! \u2b22 \u2b21 \u2b22\n'), !
+        ;   %OR
+        next_player(Player, NextPlayer),                % If not, switch to the next Player
+        write(NextPlayer), write(' to move'),
+        game_loop(NewBoard, NextPlayer)).               % Restart loop with the new board and player
 
 game_loop_cpu(Board, Player) :-
     print_board(Board),
@@ -69,16 +68,16 @@ game_loop_cpu_2(Board, Player) :-
     %if not over
     write(Player), write(' to move'),
     % TODO: é preciso chamar minimax invertido
-    get_move_cpu_2(Board, Move, Player),       % Read the move from input and validate it
-    apply_move(Move, Player, Board, NewBoard),  % Apply the move to the logic board
-    next_player(Player, NextPlayer),            % Switch to the next player
+    get_move_cpu_2(Board, Move, Player),                % Read the move from input and validate it
+    apply_move(Move, Player, Board, NewBoard),          % Apply the move to the logic board
+    next_player(Player, NextPlayer),                    % Switch to the next player
     game_loop_cpu_2(NewBoard, NextPlayer).
 
-%
-% MOVES
-%
+%****************************************
+%               MOVES
+%****************************************
 
-% Reads Input and returns a Move if is valid. e.g. Input = b/3 -> Move = [2,3]
+% Reads Input and returns a Move if is valid. e.g. Input = 3/b -> Move = [3,b]
 get_move(Board, Move) :-
     repeat,  
         read(Input),
@@ -86,8 +85,7 @@ get_move(Board, Move) :-
             convert_input(Input, Move),         % Convert input into a Move
             validate_move(Move, Board), !       % Validate if Move is valid to play
             ;   % OR
-            write('Invalid move.\n'),
-            fail                                % Else: Re-read new input
+            write('Invalid move.\n'), fail      % Else: Re-read new input
         ).
 
 get_move_cpu(Board, Move, Player) :-
@@ -123,10 +121,11 @@ apply_move(Move, Player, Board, NewBoard) :-
     piece(Player, Piece),
     modify_board(Move, Board, Piece, NewBoard).
 
-convert_input(XLetter/Y, Move) :-
-    nonvar(XLetter),                            % Check if XLetter is not capitalized/a variable
-    atom_codes(XLetter, [XCode]),               % Get code of X Letter
-    X is XCode - 96,                            % Get X as Number. e.g. a = 1
+convert_input(X/YLetter, Move) :-
+    number(X),                                  % Check if X is a number
+    nonvar(YLetter),                            % Check if YLetter is not capitalized/a variable
+    atom_codes(YLetter, [YCode]),               % Get code of YLetter
+    Y is YCode - 96,                            % Get Y as Number. e.g. a = 1
     Move = [X,Y].                         
 
 % check if choosen move is valid
@@ -138,111 +137,67 @@ validate_move([X,Y], Board) :-
     
 % check if piece in position [X,Y] of the Board is empty (empty = '.')
 empty_pos([X, Y], Board) :-
-    nth1(Y, Board, Row),
-    nth1(X, Row, Piece),
+    nth1(X, Board, Row),
+    nth1(Y, Row, Piece),
     (Piece == '.').
 
 
-% ***************************************
-
-% ***************************************
-% Check Victory
-%
+%****************************************
+%           Check Victory - DFS
+%****************************************
 
 check_victory(Board, Player) :-
-    starting_positions(Player, Board, StartPositions),              % Get starting positions for Player
-    %write('***** DEBUG check_victory *****'), write(StartPositions), nl,
-    validate_victory_path(Board, Player, StartPositions), !.           % Check if there is a path from any starting position to a goal position
+    start_positions(Board, Player, StartPositions),             % Get start positions for Player
+    dfs_each_start_pos(Board, Player, StartPositions).          % Check if there is a path from any starting position to a goal position
 
-validate_victory_path(_, _, []):-fail.                            % If there are no starting positions, fail
-validate_victory_path(Board, Player, [Start|StartPositions]) :-      % Check if there is a path from the current starting position (Start) to a goal position
-    (path_exists(Board, Player, [Start|StartPositions]) ->                            % If there is a path from the current starting position to a goal position
-        true,!
-    ;
-        %write('***** DEBUG inside validate_victory_path *****'), write('Is False'), nl,
-        validate_victory_path(Board, Piece, StartPositions)         % Else: Check if there is a path from the next starting position (StartPositions) to a goal position
-    ).
 
-path_exists(Board, Player, [Start|StartPositions]) :-
-    %write('***** DEBUG inside path_exists *****'), write(Start), nl, write(Player), nl,
-    dfs(Board, Player, [Start|StartPositions], []), !.
+% No More Start Nodes to DFS
+dfs_each_start_pos(_, _, []) :- fail.                           
+dfs_each_start_pos(Board, Player, [Start|StartPositions]) :- 
+    % write('# DFS '), write(Start), write(StartPositions), write(Player), nl, 
+    dfs(Board, Player, [Start], []), !                          % Check if there's a path from Start to a Goal position
+    ; %OR
+    dfs_each_start_pos(Board, Player, StartPositions).          % Else: Check again starting from the next start position 
 
-dfs(_, _, [], _) :- write('This has failed'), nl, fail.    % If there are no more positions to check, fail
-dfs(Board, Player, [Pos| Positions], Visited) :-
-    %write('***** Running Debgu for DFS *****'), nl,  
-    piece(Player, Piece), 
-    %write('***** DEBUG dfs get piece *****'), write(Piece), nl,
-    write('Before goal    '), write(Pos), nl,
-    (goal(Piece, Pos, Board) ->
-        %write('***** DEBUG inside dfs *****'), nl,
-        true,
-        write('The has won'), !
-        ;
-        %write('***** DEBUG inside dfs goal was false *****'), nl,
-        findall(Neighbor, (next_move(Board, Player, Pos, Neighbor), \+ member(Neighbor, Visited)), Neighbors),
-        %write('***** DEBUG findall: *****'), write(Neighbor), write(Neighbors), nl,
-        %write('Neighbors:'), write(Neighbors), write('   Visited   '), write(Visited), write('Neighbor'), write(Neighbor), nl,
-        append(Neighbors, Visited, UpdatedVisited),
-        %write('***** DEBUG append: *****'), write(Neighbor), write(Neighbors), nl,
-        dfs(Board, Player, Neighbors, UpdatedVisited), !     % Check if there is a path from the current position to a goal position in this branch
-        ; % OR
-        %write('***** DEBUG dfs current: *****'), write(Neighbor), write(Neighbors), nl,
-        dfs(Board, Player, Positions, Visited)          % Previous branch has been checked and failed, check the next one
-        %write('***** DEBUG dfs backtracking: *****'), write(Neighbor), write(Neighbors), nl,
-    ).
+% No more Nodes to visit
+dfs(_, _, [], _) :- fail.                         
 
-goal(Piece, [X, Y], Board) :-
-    Piece == '\u2b21',  % only checks for black
-    %write('Inside goal for BLACK'), write(Piece), nl,
-    piece('BLACK', Piece),
-    nth1(Y, Board, Row),
-    nth1(X, Row, BoardPiece),
-    length(Board, Size),
-    BoardPiece == Piece,
-    X =:= Size,
-    !.
+% Skip Goal not found
+dfs(Board, Player, [Node| Tail], Visited) :-
+    %write('# TEST GOAL - NODE '), write(Node), nl,
+    goal(Player, Node, Board).
 
-goal(Piece, [X, Y], Board) :-
-    Piece == '\u2b22',  % only checks for white
-    %write('Inside goal for WHITE'), write(Piece), nl,
-    write('Coords'), write([X/Y]), nl,
-    piece('WHITE', Piece),
-    nth1(X, Board, Row),
-    nth1(Y, Row, BoardPiece),
-    length(Board, Size),
-    BoardPiece == Piece,
-    Y =:= Size,
-    !.
+% Skip Node already visited
+dfs(Board, Player, [Node| Tail], Visited) :-
+    %write('# VISITED  = '), write(Visited), nl,
+    %write('# NODE = '), write(Node), nl,
+    %write('# TAIL = '), write(Tail), nl,
+    member(Node, Visited),
+    dfs(Board, Player, Tail, Visited).  
 
-/*
-goal('BLACK', [X, _], Board) :-
-    length(Board, X).
+% Check neighbors - mark visited and add unvisited neighbors to the end of the list
+dfs(Board, Player, [Node| Tail], Visited) :-
+    findall(Neighbor, (next_neighbor(Board, Player, Node, Neighbor), \+ member(Neighbor, Visited)), Neighbors),
+    append(Tail, Neighbors, ToVisit),                           % Add unvisited neighbors to the end of the list
+    append([Node], Visited, NewVisited),                        % Mark Node as visited
+    %write('# TO VISIT = '), write(ToVisit), nl,
+    %write('# NEW VISITED = '), write(NewVisited), nl,
+    dfs(Board, Player, ToVisit, NewVisited).                    % Continue DFS with the new list of nodes to visit and the new list of visited nodes   
 
-goal('WHITE', [_, Y], Board) :-
-    length(Board, X).
-*/
+% Goal is Node having a specific coordinate (WHITE -> Last Column, BLACK -> Last Row)
+goal(Player, [X, Y], Board) :-
+    length(Board, Board_Length),
+    (Player = 'WHITE' ->
+        Y =:= Board_Length, !
+        ;   %OR
+        X =:= Board_Length,
+    !).
 
-next_move(Board, Player, [X, Y], [X1, Y1]) :-
-    %write('*** Inside next mode  ***'), nl,
-    length(Board, Size),
-    between(1, Size, X1),
-    between(1, Size, Y1),
-    abs(X1 - X) =< 1,
-    abs(Y1 - Y) =< 1,
-    (X1 =:= X, Y1 =:= Y -> fail; true),
-    modify_board([X1, Y1], Board, Piece, _),
-    piece(Player, Piece).
-
-neighbors(Board, [X, Y], Neighbors) :-
-    nl.    % TODO - Calculate the neighbors of the current position
-    % TODO
-    findall([NewX, NewY],
-            (
-                neighbor_coords([X, Y], [NewX, NewY]),
-                valid_coords(Board, [NewX, NewY]),
-                piece_at(Board, [NewX, NewY], Piece)
-            ),
-            Neighbors).
+% Get Next Neighbor of a Position with same color Piece
+next_neighbor(Board, Player, [X, Y], [NewX, NewY]) :-
+    neighbor_coords([X, Y], [NewX, NewY]),
+    valid_coords(Board, [NewX, NewY]),
+    piece_at(Board, Player, [NewX, NewY]).
 
 neighbor_coords([X, Y], [NewX, NewY]) :-
     DXY = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, -1], [-1, 1]],
@@ -251,25 +206,26 @@ neighbor_coords([X, Y], [NewX, NewY]) :-
     NewY is Y + DY.
 
 valid_coords(Board, [X, Y]) :-
-    length(Board, Size),
-    X >= 1, X =< Size,
-    Y >= 1, Y =< Size.
+    length(Board, Board_Length),
+    X >= 1, X =< Board_Length,
+    Y >= 1, Y =< Board_Length.
 
-piece_at(Board, [X, Y], Piece) :-
-    nth1(Y, Board, Row),
-    nth1(X, Row, Piece).
-
-% ***************************************
-%               PLAYERS
-% ***************************************   
-
-% Get starting positions for a player
-starting_positions(Player, Board, StartPositions) :-
+piece_at(Board, Player, [X, Y]) :-
     piece(Player, Piece),
-    (Player = 'BLACK' ->
-        findall([1, Y], (nth1(Y, Board, Row), nth1(1, Row, Piece)), StartPositions)     % Get all positions where the piece is in the first column (Black Player)
-    ;
-        findall([X, 1], (nth1(1, Board, Row), nth1(X, Row, Piece)), StartPositions)     % Get all positions where the piece is in the first row (White Player)
+    nth1(X, Board, Row),
+    nth1(Y, Row, Piece).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%               PLAYERS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+
+% Get starting positions for a player (WHITE -> 1st Column, BLACK -> 1st Row)
+start_positions(Board, Player, StartPositions) :-
+    piece(Player, Piece),
+    (Player = 'WHITE' ->
+        findall([Y, 1], (nth1(Y, Board, Row), nth1(1, Row, Piece)), StartPositions)     
+    ;   %OR  
+        findall([1, X], (nth1(1, Board, Row), nth1(X, Row, Piece)), StartPositions)     
     ).
 
 % Get players pieces chars
