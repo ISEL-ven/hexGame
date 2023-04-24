@@ -154,7 +154,6 @@ check_victory(Board, Player) :-
 % No More Start Nodes to DFS
 dfs_each_start_pos(_, _, []) :- fail.                           
 dfs_each_start_pos(Board, Player, [Start|StartPositions]) :- 
-    % write('# DFS '), write(Start), write(StartPositions), write(Player), nl, 
     dfs(Board, Player, [Start], []), !                          % Check if there's a path from Start to a Goal position
     ; %OR
     dfs_each_start_pos(Board, Player, StartPositions).          % Else: Check again starting from the next start position 
@@ -164,14 +163,10 @@ dfs(_, _, [], _) :- fail.
 
 % Skip Goal not found
 dfs(Board, Player, [Node| Tail], Visited) :-
-    %write('# TEST GOAL - NODE '), write(Node), nl,
     goal(Player, Node, Board).
 
 % Skip Node already visited
 dfs(Board, Player, [Node| Tail], Visited) :-
-    %write('# VISITED  = '), write(Visited), nl,
-    %write('# NODE = '), write(Node), nl,
-    %write('# TAIL = '), write(Tail), nl,
     member(Node, Visited),
     dfs(Board, Player, Tail, Visited).  
 
@@ -180,8 +175,6 @@ dfs(Board, Player, [Node| Tail], Visited) :-
     findall(Neighbor, (next_neighbor(Board, Player, Node, Neighbor), \+ member(Neighbor, Visited)), Neighbors),
     append(Tail, Neighbors, ToVisit),                           % Add unvisited neighbors to the end of the list
     append([Node], Visited, NewVisited),                        % Mark Node as visited
-    %write('# TO VISIT = '), write(ToVisit), nl,
-    %write('# NEW VISITED = '), write(NewVisited), nl,
     dfs(Board, Player, ToVisit, NewVisited).                    % Continue DFS with the new list of nodes to visit and the new list of visited nodes   
 
 % Goal is Node having a specific coordinate (WHITE -> Last Column, BLACK -> Last Row)
