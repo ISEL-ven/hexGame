@@ -1,8 +1,8 @@
 :- use_module(options).
 
-% ***************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %               MAIN 
-% ***************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 main() :- 
     write('\n\u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \n'),
@@ -10,4 +10,4 @@ main() :-
     write('\u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \n'),
     print_options(),
     read_options().
-%:- main.  % run main automatically
+:- main.  % run main automatically

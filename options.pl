@@ -2,9 +2,9 @@
 
 :- use_module(game).
 
-% ***************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %               OPTIONS
-% ****************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 print_options() :- 
     print_dialog('GAME MODE'),
@@ -15,7 +15,7 @@ print_options() :-
 read_options() :- 
     write('Choose mode: '),
     read(Option),
-    option(Option).
+    option(2).
 
 read_board_size(Size) :-                            
     print_dialog('Set board size (max: 9)'),
@@ -24,17 +24,17 @@ read_board_size(Size) :-
 
 % Option 1 - Player vs Player
 option(1) :- 
-    read_board_size(Size),              % Get the size of the board from input
+    read_board_size(Size),
     start_game(1, Size).
 
 % Option 2 - Player vs CPU
 option(2) :-
-    read_board_size(Size),              % Get the size of the board from input
+    read_board_size(Size),
     start_game(2, Size).
 
-% Option 3 - CPU vs CPU
+% Option 3 - CPU vs Player
 option(3) :- 
-    read_board_size(Size),              % Get the size of the board from input
+    read_board_size(Size),
     start_game(3, Size).
 
 option(_) :- 
