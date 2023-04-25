@@ -1,4 +1,4 @@
-:- module(options, [print_options/0, read_options/0, print_dialog/1]).
+:- module(options, [print_options/0, read_options/0, print_dialog/1, print_winner/1]).
 
 :- use_module(game).
 
@@ -15,7 +15,7 @@ print_options() :-
 read_options() :- 
     write('Choose mode: '),
     read(Option),
-    option(2).
+    option(Option).
 
 read_board_size(Size) :-                            
     print_dialog('Set board size (max: 9)'),
@@ -45,4 +45,9 @@ print_dialog(Message) :-
     write('\n\u2b22 \u2b21 \u2b22  '),
     write(Message),
     write('  \u2b22 \u2b21 \u2b22\n').
+
+print_winner(Player) :-
+    write('\n\u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \n'),
+    write('\u2b21 \u2b22 '), write(Player), write(' WINS! \u2b22 \u2b21 \n'),
+    write('\u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22\n\n').
 

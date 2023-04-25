@@ -1,23 +1,28 @@
 :- module(minimax, [minimax/3]).
 :- use_module(game).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%               MINIMAX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 % minimax( Pos, BestSucc, Val):
 %   Pos is a position, Val is its minimax value;
 %   best move from Pos leads to position BestSucc
 
 minimax( Pos, BestSucc, Val) :-
-   write('\n# Minimax on = '),write(Pos),nl,
-   moves( Pos, PosList), write('# PosList = '), write(PosList), nl, !,      % Legal moves in Pos produce PosList
-   best( PosList, BestSucc, Val)
+   write('\n# Minimax on = '),write(Pos) ,nl,
+   moves( Pos, PosList),  % Legal moves in Pos produce PosList
+   write('# PosList = '), write(PosList), nl,
+   best( PosList, BestSucc, Val),
+   write('# VAL = '), write(Val), nl,  
+   write('# BestSucc = '), write(BestSucc), nl, !
    ; % Or
    staticval( Pos, Val).         % Pos has no successors: evaluate statically
-   
    
 best( [Pos], Pos, Val) :-
    write('# best'), nl,
    minimax( Pos, _, Val), !.
-
 
 best( [Pos1 | PosList], BestPos, BestVal) :-
    write('# best2'), nl,
@@ -36,34 +41,38 @@ betterof( Pos0, Val0, Pos1, Val1, Pos0, Val0) :- % Pos0 better than Pos1
 
 betterof( Pos0, Val0, Pos1, Val1, Pos1, Val1). % Otherwise Pos1 better than Pos0
 
-moves(Pos, PosList) :-
-   get_next_player(Pos, Player), write('# TURN = '), write(Player), nl,
-   findall(Pos1, simulated_play(Pos, Player, Pos1) , PosList).
- 
-simulated_play(Pos, Player, Pos1) :-
-   game:empty_pos([X, Y], Pos), 
-   write('SIMULATED PLAY on '), write(Pos), write('MOVE = '), write([X, Y]), nl,
-   game:apply_move([X, Y], Player, Pos, Pos1),
-   write('SIMULATED PLAY GENERATED '), write(NewBoard), nl.
-
 staticval(Pos, Value) :-
    get_next_player(Pos, Player),
-   staticval(Pos, Value, Player).
-
-staticval(Pos, Value, 'WHITE') :-
-   game:check_victory(Pos, 'WHITE'),
-   Value is 1.
-
-staticval(Pos, Value, 'BLACK') :-
-   game:check_victory(Pos, 'BLACK'),
-   Value is -1.
+   Player = 'WHITE' -> 
+   Value is 1 , write('###### SIM WHITE WINS ######\n'),!
+   ; % OR
+   Value is -1, write('###### SIM BLACK WINS ######\n').
 
 staticval(_, _, 0).
+
+min_to_move(Pos) :- 
+   get_next_player(Pos, Player),
+   Player = 'BLACK'. 
+
+max_to_move(Pos) :-
+   get_next_player(Pos, Player),
+   Player = 'WHITE'.
+ 
+moves(Pos, PosList) :-
+   get_next_player(Pos, Player), write('# TURN = '), write(Player), nl,
+   findall(Pos1, simulated_move(Pos, Player, Pos1) , PosList),
+   PosList \= []. % PosList is not empty
+
+simulated_move(Pos, Player, Pos1) :-
+   game:empty_pos([X, Y], Pos), 
+   write('# SIM MOVE = '), write([X, Y]), write(' on Board '), write(Pos), nl,
+   game:apply_move([X, Y], Player, Pos, Pos1),
+   write('# SIM NEW BOARD = '), write(Pos1), nl.
 
 get_next_player(Board, Player) :-
    count_pieces(Board, '\u2b22', WhiteCount),
    count_pieces(Board, '\u2b21', BlackCount),
-   write(WhiteCount), write(' '), write(BlackCount), nl,
+   %write('WCOUNT = '),write(WhiteCount), write(' BCOUNT = '), write(BlackCount), nl,
    (WhiteCount > BlackCount ->
    Player = 'BLACK', !
    ; % Or
@@ -74,16 +83,6 @@ count_pieces([Row|Rest], Char, Count) :-
     count_char_row(Row, Char, RowCount),
     count_pieces(Rest, Char, RestCount),
     Count is RowCount + RestCount.
-
 count_char_row(Row, Piece, Count) :-
-   write(Piece), write(Row),
    findall(Piece, member(Piece, Row), Found),
    length(Found, Count).
-   
-% TODO -----------------------------------------------
-min_to_move(Pos) :- write('min ').
-  
-
-% TODO -----------------------------------------------
-max_to_move(Pos) :-write('min ').
- 

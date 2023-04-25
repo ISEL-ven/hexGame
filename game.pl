@@ -17,7 +17,6 @@ start_game(1, Size) :-
     print_dialog('GAME STARTED'),
     write('To play a piece write (e.g "1/a")\n'),
     create_board(Size, Board),                      % Create the Board based on it's size
-    print_board(Board),                             % Print the Board
     game_loop(Board, 'WHITE').                      % Start the game 
 
 % TODO: Mode 2 - Player vs CPU
@@ -25,7 +24,6 @@ start_game(2, Size) :-
     print_dialog('GAME STARTED'),
     write('To play a piece write (e.g "1/a")\n'),
     create_board(Size, Board),                  % Create the Board based on it's size
-    print_board(Board),                         % Print the Board
     game_loop_cpu(Board, 'WHITE').              % Start the game
 
 % TODO: Mode 3 - CPU vs Player
@@ -41,32 +39,31 @@ start_game(3, Size) :-
 %****************************************
 
 game_loop(Board, Player) :-
+    print_board(Board),                                 % Print Board in the screen
+    write(Player), write(' to move\n'),
     get_move(Board, Move),                              % Read Move from input and validate it
     apply_move(Move, Player, Board, NewBoard),          % Apply Move to the logic board
-    print_board(NewBoard),                              % Print Board in the screen
     (check_victory(NewBoard, Player) ->                 % If Player won -> Game Over
-        write('\u2b22 \u2b21 \u2b22 '), write(Player), write(' WINS! \u2b22 \u2b21 \u2b22\n'), !
+        print_winner(Player), !
         ;   %OR
         next_player(Player, NextPlayer),                % If not, switch to the next Player
-        write(NextPlayer), write(' to move'),
         game_loop(NewBoard, NextPlayer)).               % Restart loop with the new board and player
 
 game_loop_cpu(Board, Player) :-
+    print_board(Board),   
     (Player = 'WHITE' ->
-        get_move(Board, Move), ! 
+        write(Player), write(' to move\n'),
+        get_move(Board, Move),
+        apply_move(Move, Player, Board, NewBoard),!           % Apply Move to the logic board 
         ;   %OR 
-        get_move_cpu(Board, Move), write(Move)
+        write('CPU TURN...'),
+        get_move_cpu(Board, NewBoard)
     ),
-    apply_move(Move, Player, Board, NewBoard),          % Apply Move to the logic board
-    print_board(NewBoard),                              % Print Board in the screen
     (check_victory(NewBoard, Player) ->                 % If Player won -> Game Over
-        write('\u2b22 \u2b21 \u2b22 '), write(Player), write(' WINS! \u2b22 \u2b21 \u2b22\n'), !
+        print_winner(Player), !
         ;   %OR
         next_player(Player, NextPlayer),                % If not, switch to the next Player
-        write(NextPlayer), write(' to move'),
         game_loop_cpu(NewBoard, NextPlayer)).               % Restart loop with the new board and player
-
-game_loop_cpu_2(Board, Player) :- fail.
 
 %****************************************
 %               MOVES
@@ -83,24 +80,8 @@ get_move(Board, Move) :-
             write('Invalid move.\n'), fail      % Else: Re-read new input
         ).
 
-get_move_cpu(Board, Move) :-
-    minimax( Board, BestSucc, Val),
-    write('BEST Succ =  '), write(BestSucc), nl,
-    write('MINMAX VAL = '), write(Val), nl.
-  
-/* get_move_cpu_2(Board, Move, Player) :-
-    Player == 'WHITE',
-    minimax.minimax([Player|Board], Move, Val), !
-    ;  % OR
-        repeat,  
-            read(Input),
-            (
-                convert_input(Input, Move),         % Convert input into a Move
-                validate_move(Move, Board), !       % Validate if Move is valid to play
-                ;   % OR
-                write('Invalid move.\n'),
-                fail                                % Else: Re-read new input
-            ).    */ 
+get_move_cpu(Board, BestSucc) :-
+    minimax( Board, BestSucc, Val).
 
 % Apply move to Board
 apply_move(Move, Player, Board, NewBoard) :-
