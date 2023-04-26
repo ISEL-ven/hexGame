@@ -48,15 +48,15 @@ staticval(Pos, Value) :-
    ; % OR
    Value is -1, write('###### SIM BLACK WINS ######\n').
 
-staticval(_, _, 0).
+staticval(_, 0).
 
 min_to_move(Pos) :- 
    get_next_player(Pos, Player),
-   Player = 'BLACK'. 
+   Player = 'WHITE'. 
 
 max_to_move(Pos) :-
    get_next_player(Pos, Player),
-   Player = 'WHITE'.
+   Player = 'BLACK'.
  
 moves(Pos, PosList) :-
    get_next_player(Pos, Player), write('# TURN = '), write(Player), nl,
@@ -72,11 +72,10 @@ simulated_move(Pos, Player, Pos1) :-
 get_next_player(Board, Player) :-
    count_pieces(Board, '\u2b22', WhiteCount),
    count_pieces(Board, '\u2b21', BlackCount),
-   %write('WCOUNT = '),write(WhiteCount), write(' BCOUNT = '), write(BlackCount), nl,
    (WhiteCount > BlackCount ->
-   Player = 'BLACK', !
-   ; % Or
-   Player = 'WHITE').
+      Player = 'BLACK', !
+      ; % Or
+      Player = 'WHITE').
 
 count_pieces([], _, 0).
 count_pieces([Row|Rest], Char, Count) :-

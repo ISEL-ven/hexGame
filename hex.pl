@@ -1,13 +1,11 @@
-:- use_module(options).
+:- use_module(ui).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %               MAIN 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 main() :- 
-    write('\n\u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \n'),
-    write(' \u2b22 \u2b21 \u2b22 HEX \u2b21 \u2b22 \u2b21 \n'),
-    write('\u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \n'),
-    print_options(),
-    read_options().
+    print_welcome(),
+    menu().
+
 :- main.  % run main automatically
