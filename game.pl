@@ -26,11 +26,13 @@ start_game(Size, Player1, Player2) :-
         write('CPU is Thinking...'),
         get_move_cpu(Board, NewBoard) 
     ),
-    print_board(NewBoard),                                  % Print the New Board  
-    not(check_victory(NewBoard, Player)),                   % If no Victory ->                  
-    game_loop(NewBoard, NextPlayer, Player), !              % Restart loop with the new Board and switch Players
-    ;   %OR
-    print_winner(Player).                                   % Else: Game Over
+
+    print_board(NewBoard),                                  % Print the New Board 
+    ((not(check_victory(NewBoard, Player))) ->              % If no Victory ->                  
+        game_loop(NewBoard, NextPlayer, Player), !          % Restart loop with the new Board and switch Players
+        ;   %OR
+        print_winner(Player)                                % Else: Game Over
+    ).                                   
 
 %****************************************
 %               MOVES
@@ -83,8 +85,9 @@ check_victory(Board, Player) :-
     start_positions(Board, Player, StartPositions),             % Get start positions for Player
     dfs_each_start_pos(Board, Player, StartPositions).          % Check if there is a path from any starting position to a goal position
 
-% No More Start Nodes to DFS
-dfs_each_start_pos(_, _, []) :- fail.                           
+% No Start Position to DFS
+dfs_each_start_pos(_, _, []) :- fail.    
+% Start DFS from each Start Position                       
 dfs_each_start_pos(Board, Player, [Start|StartPositions]) :- 
     dfs(Board, Player, [Start], []), !                          % Check if there's a path from Start to a Goal position
     ; %OR
@@ -112,11 +115,12 @@ dfs(Board, Player, [Node| Tail], Visited) :-
 % Goal is Node having a specific coordinate (WHITE -> Last Column, BLACK -> Last Row)
 goal(Player, [X, Y], Board) :-
     length(Board, Board_Length),
-    (Player = 'WHITE' ->
+    piece(Player, Piece),
+    (Piece = '\u2b22' ->
         Y =:= Board_Length, !
         ;   %OR
-        X =:= Board_Length,
-    !).
+        X =:= Board_Length
+    ).
 
 % Get Next Neighbor of a Position with same color Piece
 next_neighbor(Board, Player, [X, Y], [NewX, NewY]) :-

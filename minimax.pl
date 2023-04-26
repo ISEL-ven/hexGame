@@ -13,12 +13,12 @@
 minimax( Pos, BestSucc, Val) :-
    write('\n# Minimax on = '),write(Pos) ,nl,
    moves( Pos, PosList),  % Legal moves in Pos produce PosList
-   write('# PosList = '), write(PosList), nl,
    best( PosList, BestSucc, Val),
-   write('# VAL = '), write(Val), nl,  
-   write('# BestSucc = '), write(BestSucc), nl, !
+   write('# PosList = '), write(PosList), nl,
+   write('&&&&&&&& BestSucc = '), write(BestSucc), nl, !
    ; % Or
-   staticval( Pos, Val).         % Pos has no successors: evaluate statically
+   staticval( Pos, Val),
+   write('# VAL = '), write(Val), nl. % Pos has no successors: evaluate statically
    
 best( [Pos], Pos, Val) :-
    write('# best'), nl,
@@ -31,44 +31,49 @@ best( [Pos1 | PosList], BestPos, BestVal) :-
    betterof( Pos1, Val1, Pos2, Val2, BestPos, BestVal).
 
 betterof( Pos0, Val0, Pos1, Val1, Pos0, Val0) :- % Pos0 better than Pos1
-   write('# betterof'), nl,
+   write('# betterof '), write(Pos0), write(' val0 = '), write(Val0), write(' val1 = '), write(Val1),nl,
 	min_to_move( Pos0),     % MIN to move in Pos0
 	Val0 > Val1, !          % MAX prefers the greater value
 	; % Or 
 	max_to_move( Pos0),     % MAX to move in Pos0
 	Val0 < Val1, !.         % MIN prefers the lesser value
 
-
 betterof( Pos0, Val0, Pos1, Val1, Pos1, Val1). % Otherwise Pos1 better than Pos0
 
 staticval(Pos, Value) :-
-   get_next_player(Pos, Player),
-   Player = 'WHITE' -> 
-   Value is 1 , write('###### SIM WHITE WINS ######\n'),!
-   ; % OR
-   Value is -1, write('###### SIM BLACK WINS ######\n').
+   game:check_victory(Pos, 'BLACK'),
+   Value is 1 , write('%%%%%%% SIM BLACK WINS %%%%%%%\n').
+
+staticval(Pos, Value) :-
+   game:check_victory(Pos, 'WHITE'),
+   Value is -1 , write('%%%%%%% SIM WHITE WINS %%%%%%%\n').
 
 staticval(_, 0).
 
-min_to_move(Pos) :- 
-   get_next_player(Pos, Player),
-   Player = 'WHITE'. 
-
 max_to_move(Pos) :-
    get_next_player(Pos, Player),
-   Player = 'BLACK'.
- 
+   Player = 'BLACK',
+   write('MAX CUTTING\n').
+
+min_to_move(Pos) :- 
+   get_next_player(Pos, Player),
+   Player = 'WHITE',
+   write('MIN CUTTING\n').
+
 moves(Pos, PosList) :-
-   get_next_player(Pos, Player), write('# TURN = '), write(Player), nl,
-   findall(Pos1, simulated_move(Pos, Player, Pos1) , PosList),
-   PosList \= []. % PosList is not empty
+   bagof(Pos1, (legal_moves(Pos, Pos1)) , PosList).
 
-simulated_move(Pos, Player, Pos1) :-
-   game:empty_pos([X, Y], Pos), 
-   write('# SIM MOVE = '), write([X, Y]), write(' on Board '), write(Pos), nl,
+legal_moves(Pos, Pos1) :-
+   get_next_player(Pos, Player), 
+   get_curr_player(Player,CurrPlayer),
+   not(game:check_victory(Pos, CurrPlayer)),
+   game:empty_pos([X, Y], Pos),
+   write('# SIM '), write(Player),write(' to MOVE = '), write([X, Y]), write(' on Board '), write(Pos),
    game:apply_move([X, Y], Player, Pos, Pos1),
-   write('# SIM NEW BOARD = '), write(Pos1), nl.
-
+   write(' ---> '), write(Pos1),nl.
+  
+   
+% Calculates the next player to move by counting the number of pieces on the board
 get_next_player(Board, Player) :-
    count_pieces(Board, '\u2b22', WhiteCount),
    count_pieces(Board, '\u2b21', BlackCount),
@@ -76,6 +81,9 @@ get_next_player(Board, Player) :-
       Player = 'BLACK', !
       ; % Or
       Player = 'WHITE').
+
+get_curr_player('WHITE', 'BLACK').
+get_curr_player('BLACK', 'WHITE').
 
 count_pieces([], _, 0).
 count_pieces([Row|Rest], Char, Count) :-
