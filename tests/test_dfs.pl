@@ -1,4 +1,4 @@
-:- use_module(game).
+:- use_module('../game').
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   DFS - Test Check Victory
@@ -173,13 +173,12 @@ test_5x5_nowin() :-
     ;   % OR
     write('TEST FAILED\n'), fail.
 
-
 % RUN ALL TESTS
 :-  
-    write('Running DFS tests...\n'),
+    write('\e[36mRunning DFS tests...\e[0m\n'),
     test_2x2_white(), test_2x2_black(), test_2x2_nowin(), 
     test_3x3_black(), test_3x3_white(), test_3x3_white1(), test_3x3_black1(), 
     test_5x5_black(), test_5x5_white(), test_5x5_nowin(),
-    write('\n:D :D :D ALL TESTS PASSED! :D :D :D\n\n'), !
+    write('\e[32mALL TESTS PASSED! :D\e[0m\n\n'), !
     ;   % OR
-    write('\nSOME TEST FAILED! :(\n'), fail.
+    write('\e[33m\nSOME TEST FAILED! :(\e[0m\n\n'), fail.

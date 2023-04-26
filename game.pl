@@ -1,4 +1,4 @@
-:- module(game, [start_game/3]).
+:- module(game, [start_game/4]).
 
 :- use_module(ui).
 :- use_module(board).
@@ -10,28 +10,28 @@
 %               GAME
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-start_game(Size, Player1, Player2) :-                          
+start_game(Size, Player1, Player2, Winner) :-                          
     print_dialog('GAME STARTED'),
     write('To play a piece write (e.g "1/a")\n'),
     create_board(Size, Board),                              % Create the Board based on Size given
     print_board(Board),                                     % Print initial Board  
-    game_loop(Board, Player1, Player2).                     % Start the Game loop
+    game_loop(Board, Player1, Player2, Winner).                     % Start the Game loop
 
- game_loop(Board, Player, NextPlayer) :-              
+ game_loop(Board, Player, NextPlayer, Winner) :-              
     ((Player = 'WHITE'; Player = 'BLACK') ->                % If Player -> Get Move from Player and apply it to Board
         write(Player), write(' to move\n'),                 
         get_move(Board, Move),                                 
         apply_move(Move, Player, Board, NewBoard), !        
         ;   %OR                                             % Else: Get Move from CPU
-        write('CPU is Thinking...'),
+        write('CPU is Thinking...\n'),
         get_move_cpu(Board, NewBoard) 
     ),
 
     print_board(NewBoard),                                  % Print the New Board 
     ((not(check_victory(NewBoard, Player))) ->              % If no Victory ->                  
-        game_loop(NewBoard, NextPlayer, Player), !          % Restart loop with the new Board and switch Players
+        game_loop(NewBoard, NextPlayer, Player, Winner), !  % Restart loop with the new Board and switch Players
         ;   %OR
-        print_winner(Player)                                % Else: Game Over
+        Winner = Player                                     % Else: Game Over -> Return Winner
     ).                                   
 
 %****************************************

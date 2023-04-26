@@ -10,8 +10,9 @@
 print_options() :- 
     print_dialog('Game Mode'),
     write('1 - Player vs Player\n'),
-    write('2 - Player vs CPU\n'),
-    write('3 - CPU vs Player\n').
+    write('2 - CPU vs Player\n'),
+    write('3 - Player vs CPU\n'),
+    write('4 - CPU vs CPU\n').
 
 % Main menu 
 menu() :- 
@@ -20,14 +21,18 @@ menu() :-
     read(Option),                               % Read option from user
     select_gamemode(Option, Player1, Player2),  % Select game mode 
     read_board_size(Size),                      % Read Board size from user
-    start_game(Size, Player1, Player2).         % Start Game with selected options
+    start_game(Size, Player1, Player2, Winner), % Start Game with selected options
+    print_winner(Winner).
 
 % Option 1 - Player vs Player
 select_gamemode(1, 'WHITE', 'BLACK').
-% Option 2 - Player vs CPU
-select_gamemode(2, 'WHITE', 'BLACK_CPU').
-% Option 3 - CPU vs Player
-select_gamemode(3, 'WHITE_CPU', 'BLACK').
+% Option 2 - CPU vs Player
+select_gamemode(2, 'WHITE_CPU', 'BLACK').
+% Option 3 - Player vs CPU
+select_gamemode(3, 'WHITE', 'BLACK_CPU').
+% Option 4 - CPU vs CPU
+select_gamemode(4, 'WHITE_CPU', 'BLACK_CPU').
+
 % Option Invalid
 select_gamemode(_,_,_) :- 
     print_dialog('Choose a valid option!'),
@@ -47,10 +52,10 @@ print_dialog(Message) :-
 
 print_winner(Player) :-
     write('\n\u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \n'),
-    write(' \u2b22 \u2b21 '), write(Player), write(' WINS!\u2b22 \u2b21 \n'),
+    write(' \u2b22 \u2b21 '), write(Player), write(' WINS! \u2b22 \u2b21 \n'),
     write('\u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22\n\n').
 
 print_welcome() :-
-    write('\n\u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \n'),
+    write('\n\u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22\n'),
     write(' \u2b22 \u2b21 \u2b22 HEX \u2b21 \u2b22 \u2b21 \n'),
-    write('\u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \n').
+    write('\u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21 \u2b22 \u2b21\n').
