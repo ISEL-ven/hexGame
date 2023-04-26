@@ -1,77 +1,36 @@
-:- module(game, [start_game/2]).
+:- module(game, [start_game/3]).
 
-:- use_module(options).
+:- use_module(ui).
 :- use_module(board).
 :- use_module(minimax).
+
+%TODO BUG OPTION 3...SWAP MIN MAX WHEN GAME MODE OPTION 3?
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %               GAME
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%
-% GAME MODES
-%
-
-% Mode 1 - Player vs Player
-start_game(1, Size) :-                          
+start_game(Size, Player1, Player2) :-                          
     print_dialog('GAME STARTED'),
     write('To play a piece write (e.g "1/a")\n'),
-    create_board(Size, Board),                      % Create the board based on it's size
-    print_board(Board),                             % print the initial board in the screen
-    game_loop(Board, 'WHITE').                      % Start the game 
+    create_board(Size, Board),                              % Create the Board based on Size given
+    print_board(Board),                                     % Print initial Board  
+    game_loop(Board, Player1, Player2).                     % Start the Game loop
 
-% TODO: Mode 2 - Player vs CPU
-start_game(2, Size) :- 
-    print_dialog('GAME STARTED'),
-    write('To play a piece write (e.g "a/1")\n'),
-    create_board(Size, Board),                  % Create the board based on it's size
-    % game_loop_cpu(Board, 'WHITE').           % Start the game
-    nl.
-
-% TODO: Mode 3 - CPU vs Player
-start_game(3, Size) :- 
-    print_dialog('GAME STARTED'),
-    write('To play a piece write (e.g "a/1")\n'),
-    create_board(Size, Board),                  % Create the board based on it's size
-    % game_loop_cpu_2(Board, 'WHITE').           % Start the game
-    nl.
-
-%****************************************
-%           GAME LOOP
-%****************************************
-
-game_loop(Board, Player) :-
-    get_move(Board, Move),                              % Read Move from input and validate it
-    apply_move(Move, Player, Board, NewBoard),          % Apply Move to the logic board
-    print_board(NewBoard),                              % Print Board in the screen
-    (check_victory(NewBoard, Player) ->                 % If Player won -> Game Over
-        write('\u2b22 \u2b21 \u2b22 '), write(Player), write(' WINS! \u2b22 \u2b21 \u2b22\n'), !
-        ;   %OR
-        next_player(Player, NextPlayer),                % If not, switch to the next Player
-        write(NextPlayer), write(' to move'),
-        game_loop(NewBoard, NextPlayer)).               % Restart loop with the new board and player
-
-game_loop_cpu(Board, Player) :-
-    print_board(Board),
-    %check if game is over TODO
-    %if not over
-    write(Player), write(' to move'),
-     % TODO: é preciso chamar minimax
-    get_move_cpu([Board], Move, Player),         % Read the move from input and validate it
-    apply_move(Move, Player, Board, NewBoard),  % Apply the move to the logic board
-    next_player(Player, NextPlayer),            % Switch to the next player
-    game_loop_cpu(NewBoard, NextPlayer).      
-
-game_loop_cpu_2(Board, Player) :-
-    print_board(Board),
-    %check if game is over TODO
-    %if not over
-    write(Player), write(' to move'),
-    % TODO: é preciso chamar minimax invertido
-    get_move_cpu_2(Board, Move, Player),                % Read the move from input and validate it
-    apply_move(Move, Player, Board, NewBoard),          % Apply the move to the logic board
-    next_player(Player, NextPlayer),                    % Switch to the next player
-    game_loop_cpu_2(NewBoard, NextPlayer).
+ game_loop(Board, Player, NextPlayer) :-              
+    ((Player = 'WHITE'; Player = 'BLACK') ->                % If Player -> Get Move from Player and apply it to Board
+        write(Player), write(' to move\n'),                 
+        get_move(Board, Move),                                 
+        apply_move(Move, Player, Board, NewBoard), !        
+        ;   %OR                                             % Else: Get Move from CPU
+        write('CPU is Thinking...'),
+        get_move_cpu(Board, NewBoard) 
+    ),
+    print_board(NewBoard),                                  % Print the New Board  
+    not(check_victory(NewBoard, Player)),                   % If no Victory ->                  
+    game_loop(NewBoard, NextPlayer, Player), !              % Restart loop with the new Board and switch Players
+    ;   %OR
+    print_winner(Player).                                   % Else: Game Over
 
 %****************************************
 %               MOVES
@@ -82,39 +41,14 @@ get_move(Board, Move) :-
     repeat,  
         read(Input),
         (
-            convert_input(Input, Move),         % Convert input into a Move
-            validate_move(Move, Board), !       % Validate if Move is valid to play
+            convert_input(Input, Move),                      % Convert input into a Move
+            validate_move(Move, Board), !                    % Validate if Move is valid to play
             ;   % OR
-            write('Invalid move.\n'), fail      % Else: Re-read new input
+            write('Invalid move.\n'), fail                   % Else: Re-read new input
         ).
 
-get_move_cpu(Board, Move, Player) :-
-    Player == 'BLACK',
-    minimax.minimax( [Player|Board], Move, Val), !
-    ;  % OR
-        repeat,  
-            read(Input),
-            (
-                convert_input(Input, Move),         % Convert input into a Move
-                validate_move(Move, Board), !       % Validate if Move is valid to play
-                ;   % OR
-                write('Invalid move.\n'),
-                fail                                % Else: Re-read new input
-            ).
-
-get_move_cpu_2(Board, Move, Player) :-
-    Player == 'WHITE',
-    minimax.minimax([Player|Board], Move, Val), !
-    ;  % OR
-        repeat,  
-            read(Input),
-            (
-                convert_input(Input, Move),         % Convert input into a Move
-                validate_move(Move, Board), !       % Validate if Move is valid to play
-                ;   % OR
-                write('Invalid move.\n'),
-                fail                                % Else: Re-read new input
-            ).    
+get_move_cpu(Board, BestSucc) :-
+    minimax(Board, BestSucc, _).
 
 % Apply move to Board
 apply_move(Move, Player, Board, NewBoard) :-
@@ -141,7 +75,6 @@ empty_pos([X, Y], Board) :-
     nth1(Y, Row, Piece),
     (Piece == '.').
 
-
 %****************************************
 %           Check Victory - DFS
 %****************************************
@@ -150,11 +83,9 @@ check_victory(Board, Player) :-
     start_positions(Board, Player, StartPositions),             % Get start positions for Player
     dfs_each_start_pos(Board, Player, StartPositions).          % Check if there is a path from any starting position to a goal position
 
-
 % No More Start Nodes to DFS
 dfs_each_start_pos(_, _, []) :- fail.                           
 dfs_each_start_pos(Board, Player, [Start|StartPositions]) :- 
-    % write('# DFS '), write(Start), write(StartPositions), write(Player), nl, 
     dfs(Board, Player, [Start], []), !                          % Check if there's a path from Start to a Goal position
     ; %OR
     dfs_each_start_pos(Board, Player, StartPositions).          % Else: Check again starting from the next start position 
@@ -162,26 +93,20 @@ dfs_each_start_pos(Board, Player, [Start|StartPositions]) :-
 % No more Nodes to visit
 dfs(_, _, [], _) :- fail.                         
 
-% Skip Goal not found
+% Skip - Goal not found
 dfs(Board, Player, [Node| Tail], Visited) :-
-    %write('# TEST GOAL - NODE '), write(Node), nl,
     goal(Player, Node, Board).
 
-% Skip Node already visited
+% Skip - Node already visited
 dfs(Board, Player, [Node| Tail], Visited) :-
-    %write('# VISITED  = '), write(Visited), nl,
-    %write('# NODE = '), write(Node), nl,
-    %write('# TAIL = '), write(Tail), nl,
     member(Node, Visited),
     dfs(Board, Player, Tail, Visited).  
 
 % Check neighbors - mark visited and add unvisited neighbors to the end of the list
 dfs(Board, Player, [Node| Tail], Visited) :-
-    findall(Neighbor, (next_neighbor(Board, Player, Node, Neighbor), \+ member(Neighbor, Visited)), Neighbors),
+    findall(Neighbor, (next_neighbor(Board, Player, Node, Neighbor),not(member(Neighbor, Visited))), Neighbors),
     append(Tail, Neighbors, ToVisit),                           % Add unvisited neighbors to the end of the list
     append([Node], Visited, NewVisited),                        % Mark Node as visited
-    %write('# TO VISIT = '), write(ToVisit), nl,
-    %write('# NEW VISITED = '), write(NewVisited), nl,
     dfs(Board, Player, ToVisit, NewVisited).                    % Continue DFS with the new list of nodes to visit and the new list of visited nodes   
 
 % Goal is Node having a specific coordinate (WHITE -> Last Column, BLACK -> Last Row)
@@ -222,16 +147,15 @@ piece_at(Board, Player, [X, Y]) :-
 % Get starting positions for a player (WHITE -> 1st Column, BLACK -> 1st Row)
 start_positions(Board, Player, StartPositions) :-
     piece(Player, Piece),
-    (Player = 'WHITE' ->
+    (Piece = '\u2b22' ->
         findall([Y, 1], (nth1(Y, Board, Row), nth1(1, Row, Piece)), StartPositions)     
     ;   %OR  
         findall([1, X], (nth1(1, Board, Row), nth1(X, Row, Piece)), StartPositions)     
     ).
 
 % Get players pieces chars
-piece('BLACK', '\u2b21'). % ⬡
-piece('WHITE', '\u2b22'). % ⬢
-
-% Get next player
-next_player('BLACK', 'WHITE').
-next_player('WHITE', 'BLACK').
+piece('BLACK', '\u2b21').       % ⬡
+piece('WHITE', '\u2b22').       % ⬢
+piece('BLACK_CPU', '\u2b21').   % ⬡
+piece('WHITE_CPU', '\u2b22').   % ⬢
+piece('EMPTY', '.').            % .
