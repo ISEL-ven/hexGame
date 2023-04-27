@@ -8,8 +8,10 @@
 ##### 0.2.0 - to release yet
 - Refactor gameloops to allow who plays first
 - MinMax working
-- Tests in 2x2, 3x3 ok
+- Alpha-Beta working
 - Adds 4 option CPU vs CPU
+- Tests in 2x2, 3x3 ok
+- Test in 4x4 Alpha-Beta working
 - Report in progress
 
 ### Run Game
@@ -25,3 +27,7 @@
 ##### MiniMax Test
 
 ```swipl .\tests\test_minimax.pl```
+
+##### MiniMax Test
+
+```swipl .\tests\test_alphabeta.pl```

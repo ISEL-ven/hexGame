@@ -1,7 +1,7 @@
 :- use_module('../game').
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   DFS - Test Check Victory
+%   Test - DFS - Check Victory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Board 2x2 - WHITE WINS
@@ -14,7 +14,7 @@ test_2x2_white() :-
     Board = [['\u2b21',.],['\u2b22','\u2b22']],
     Player = 'WHITE',
     
-    game:check_victory(Board, Player), ! 
+    check_victory(Board, Player), ! 
     ;   % OR
     write('TEST FAILED\n'), fail.
 
@@ -28,7 +28,7 @@ test_2x2_black() :-
     Board = [['\u2b21',.],['\u2b21','\u2b22']],
     Player = 'BLACK',
     
-    game:check_victory(Board, Player), !
+    check_victory(Board, Player), !
     ;   % OR
     write('TEST FAILED\n'), fail.
 
@@ -42,7 +42,7 @@ test_2x2_nowin() :-
     Board = [['\u2b21',.],[.,'\u2b22']],
     Player = 'BLACK',
     
-    not(game:check_victory(Board, Player)), !
+    not(check_victory(Board, Player)), !
     ;   % OR
     write('TEST FAILED\n'), fail.
 
@@ -57,7 +57,7 @@ test_3x3_black() :-
     Board = [['\u2b21','\u2b22','\u2b22'],['\u2b21','\u2b21','\u2b21'],['\u2b22','\u2b22','\u2b21']],
     Player = 'BLACK',
     
-    game:check_victory(Board, Player), !
+    check_victory(Board, Player), !
     ;   % OR
     write('TEST FAILED\n'), fail.
 
@@ -72,7 +72,7 @@ test_3x3_white() :-
     Board = [['\u2b22','\u2b22','\u2b21'],['\u2b21','\u2b22','\u2b22'],['\u2b21','\u2b21','\u2b21']],
     Player = 'WHITE',
     
-    game:check_victory(Board, Player), !
+    check_victory(Board, Player), !
     ;   % OR
     write('TEST FAILED\n'), fail.
 
@@ -88,7 +88,7 @@ test_3x3_white1() :-
     Board = [[.,'\u2b21','\u2b22'],['\u2b21','\u2b22',.],['\u2b22','\u2b21',.]],
     Player = 'WHITE',
     
-    game:check_victory(Board, Player), !
+    check_victory(Board, Player), !
     ;   % OR
     write('TEST FAILED\n'), fail.
 
@@ -103,7 +103,7 @@ test_3x3_black1() :-
     Board = [[.,'\u2b22','\u2b21'],['\u2b22','\u2b21',.],['\u2b21','\u2b22',.]],
     Player = 'BLACK',
     
-    game:check_victory(Board, Player), !
+    check_victory(Board, Player), !
     ;   % OR
     write('TEST FAILED\n'), fail.
 
@@ -125,7 +125,7 @@ test_5x5_black() :-
         ['\u2b21','\u2b22','\u2b22', ., .]],
     Player = 'BLACK',
     
-    game:check_victory(Board, Player), !
+    check_victory(Board, Player), !
     ;   % OR
     write('TEST FAILED\n'), fail.
 
@@ -147,7 +147,7 @@ test_5x5_white() :-
         ['\u2b22','\u2b21','\u2b22', ., .]],
     Player = 'WHITE',
     
-    game:check_victory(Board, Player), !
+    check_victory(Board, Player), !
     ;   % OR
     write('TEST FAILED\n'), fail.
 
@@ -169,7 +169,7 @@ test_5x5_nowin() :-
         ['\u2b22','\u2b21',., '\u2b22','\u2b21']],
     Player = 'WHITE',
     
-    not(game:check_victory(Board, Player)), !
+    not(check_victory(Board, Player)), !
     ;   % OR
     write('TEST FAILED\n'), fail.
 

@@ -1,0 +1,59 @@
+
+
+MINIMAX
+Time to execute 2x2: 0 ms
+Time to execute 3x3: 44093 ms
+ALL TESTS PASSED! :D
+
+MINIMAX
+Time to execute 2x2: 0 ms
+Time to execute 3x3: 42343 ms
+
+MINIMAX
+Time to execute 2x2: 0 ms
+Time to execute 3x3: 52078 ms
+ALL TESTS PASSED! :D
+
+MINIMAX
+Time to execute 2x2: 15 ms
+Time to execute 3x3: 41219 ms
+
+MINIMAX
+Time to execute 2x2: 0 ms
+Time to execute 3x3: 48171 ms
+ALL TESTS PASSED! :D
+
+
+
+
+
+
+ALPHABETA
+Time to execute 2x2: 15 ms
+Time to execute 3x3: 31656 ms
+ALL TESTS PASSED! :D
+
+ALPHABETA
+Time to execute 2x2: 0 ms
+Time to execute 3x3: 31328 ms
+
+ALPHABETA
+Time to execute 2x2: 0 ms
+Time to execute 3x3: 26953 ms
+ALL TESTS PASSED! :D
+
+ALPHABETA
+Time to execute 2x2: 15 ms
+Time to execute 3x3: 33391 ms
+ALL TESTS PASSED! :D
+
+ALPHABETA
+Time to execute 2x2: 0 ms
+Time to execute 3x3: 35531 ms
+ALL TESTS PASSED! :D
+
+
+
+
+
+
