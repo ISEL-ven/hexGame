@@ -175,7 +175,7 @@ test_5x5_nowin() :-
 
 % RUN ALL TESTS
 :-  
-    write('\e[36mRunning DFS tests...\e[0m\n'),
+    write('\e[35mRunning DFS tests...\e[0m\n'),
     test_2x2_white(), test_2x2_black(), test_2x2_nowin(), 
     test_3x3_black(), test_3x3_white(), test_3x3_white1(), test_3x3_black1(), 
     test_5x5_black(), test_5x5_white(), test_5x5_nowin(),
