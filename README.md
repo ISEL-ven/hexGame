@@ -5,7 +5,7 @@
 - Minmax in progress
 - Report in progress
 
-##### 0.2.0 - to release yet
+##### 1.0.0
 - Refactor gameloops to allow who plays first
 - MinMax working
 - Alpha-Beta working
@@ -15,19 +15,21 @@
 - Report in progress
 
 ### Run Game
-
-```swipl .\hex.pl```
+```
+swipl .\hex.pl
+```
 
 ### Run Tests
 
 ##### DFS Test
-
-```swipl .\tests\test_dfs.pl```
-
+```
+swipl .\tests\test_dfs.pl
+```
 ##### MiniMax Test
-
-```swipl .\tests\test_minimax.pl```
-
-##### MiniMax Test
-
-```swipl .\tests\test_alphabeta.pl```
+```
+swipl .\tests\test_minimax.pl
+```
+##### AlphaBeta Test
+```
+swipl .\tests\test_alphabeta.pl
+```

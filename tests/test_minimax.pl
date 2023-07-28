@@ -7,7 +7,7 @@
 
 % Board Size x Size - First CPU always wins if it starts first
 test_minimax_cpu_vs_cpu(Runtime, Size) :- 
-write('\e[35mTesting '),write(Size), write('X'), write(Size), write(' CPU vs CPU\e[0m'), 
+    write('\e[35mTesting '),write(Size), write('X'), write(Size), write(' CPU vs CPU\e[0m'), 
 
     %Act
     statistics(runtime,[Start|_]),
